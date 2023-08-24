@@ -1,0 +1,17 @@
+{
+    "name": "Idle World",
+    "short_name": "Idleworld",
+    "theme_color": "#000000",
+    "background_color": "#141414",
+    "display": "fullscreen",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+        {
+          "src": "imgs/tycoonworldicon.png",
+          "sizes": "any",
+          "type": "image/png"
+        }
+      ]
+}
