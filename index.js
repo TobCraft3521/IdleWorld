@@ -88,3 +88,5 @@ if (window.matchMedia("(any-pointer: coarse)").matches) {
 }
 
 game.create()
+
+console.log("Testing git,github and netlify")
