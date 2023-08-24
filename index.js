@@ -89,4 +89,4 @@ if (window.matchMedia("(any-pointer: coarse)").matches) {
 
 game.create()
 
-console.log("Practising git push")
+console.log("Note: this is my first Github project im developing in vs code and it is synchronised with my webside / (netlify)")
