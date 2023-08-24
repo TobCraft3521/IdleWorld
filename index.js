@@ -27,7 +27,7 @@ map.objs.sea = sea
 
 
 
-if (window.matchMedia("(any-pointer: coarse)").matches) {
+if (window.matchMedia("(pointer: coarse)").matches) {
     // touchscreen
     game.log("Found touchscreen")
     window.ontouchstart = (e) => {
