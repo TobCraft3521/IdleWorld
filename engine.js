@@ -6,14 +6,15 @@ class TobGameEngine {
 
     addScene(scene) {
         if (scene?.name) {
-            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock }
+            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map }
             enginestuff.scenes[scene.name] = scene
+            enginestuff.scenedata[scene.name] = {swipePositionX:0,swipePositionY:0}
             if (enginestuff.activeSceneName === "") {
                 this.switchToScene(scene.name, true)
             }
             return scene
         } else {
-            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out} Note: Sceneloaders do only work after the scene has been added and you switch to that scene.")
+            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(map:\"map-name\"),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out} Note: Sceneloaders do only work after the scene has been added and you switch to that scene.")
             return
         }
     }
@@ -112,10 +113,78 @@ class TobGameEngine {
             }
         }
 
-        enginestuff.canvas.onmousemove = (e) => {
-            enginestuff.mouseX = e.x
-            enginestuff.mouseY = e.y
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            this.#enginelog("Using touchscreen as primary input for clicking")
+            window.ontouchstart = (e) => {
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = true
+                    enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX = e.touches[0].clientX
+                    enginestuff.scenedata[enginestuff.activeSceneName].startSwipeY = e.touches[0].clientY
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Store the previous position (X)
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY // Store the previous position (Y)
+                }
+            }
+
+            window.ontouchend = () => {
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = false
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Update the previous position (X)
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY // Update the previous position (Y)
+                }
+            }
+
+            window.ontouchmove = (e) => {
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    if (enginestuff.scenedata[enginestuff.activeSceneName].isSwiping) {
+                        const deltaX = e.touches[0].clientX - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX
+                        const deltaY = e.touches[0].clientY - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeY
+
+                        enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX = Math.min(Math.max(enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX + deltaX, -((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].w / 2) - (enginestuff.canvas.width / 2))), ((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].w / 2) - (enginestuff.canvas.width / 2)))
+                        enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY = Math.min(Math.max(enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY + deltaY, -((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].h / 2) - (enginestuff.canvas.height / 2))), ((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].h / 2) - (enginestuff.canvas.height / 2)))
+                    }
+                }
+            }
+
+        } else {
+            this.#enginelog("Using mouse as primary input for clicking")
+            window.onmousemove = (e) => {
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    if (enginestuff.scenedata[enginestuff.activeSceneName].isSwiping) {
+                        const deltaX = e.clientX - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX
+                        const deltaY = e.clientY - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeY
+
+                        enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX = Math.min(Math.max(enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX + deltaX, -((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].w / 2) - (enginestuff.canvas.width / 2))), ((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].w / 2) - (enginestuff.canvas.width / 2)))
+                        enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY = Math.min(Math.max(enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY + deltaY, -((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].h / 2) - (enginestuff.canvas.height / 2))), ((enginestuff.scenes[enginestuff.activeSceneName].objs[enginestuff.scenes[enginestuff.activeSceneName].map].h / 2) - (enginestuff.canvas.height / 2)))
+                    }
+                }
+            }
+
+            window.onmousedown = (e) => {
+                for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
+                    if (enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
+                        obj.onclick ? obj.onclick() : undefined
+                    }
+                }
+
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = true
+                    enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX = e.clientX
+                    enginestuff.scenedata[enginestuff.activeSceneName].startSwipeY = e.clientY
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Store the previous position (X)
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY // Store the previous position (Y)
+                }
+            }
+
+            window.onmouseup = (e) => {
+                if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+                    enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = false
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Update the previous position (X)
+                    enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY // Update the previous position (Y)
+                }
+            }
         }
+
+
 
         document.onkeydown = (e) => {
             this.pressedKeys[e.key.toLowerCase()] = true
@@ -123,14 +192,6 @@ class TobGameEngine {
 
         document.onkeyup = (e) => {
             delete this.pressedKeys[e.key.toLowerCase()]
-        }
-
-        document.onmousedown = (e) => {
-            for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
-                if (enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
-                    obj.onclick ? obj.onclick() : undefined
-                }
-            }
         }
 
         enginestuff.renderGame()
@@ -152,11 +213,18 @@ const enginestuff = {
      */
     ctx: undefined,
     scenes: {},
+    scenedata: {},
     activeSceneName: "",
     textures: {},
     gameStartTimeStamp: 0,
     layers: [],
     renderGame() {
+
+        if(enginestuff.scenes[enginestuff.activeSceneName].map) {
+           enginestuff.scenes[enginestuff.activeSceneName].cam.x = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX
+           enginestuff.scenes[enginestuff.activeSceneName].cam.y = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY
+        }
+
         //quality
         enginestuff.ctx.imageSmoothingEnabled = false
 
