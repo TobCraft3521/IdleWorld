@@ -9,7 +9,7 @@
     "start_url": "/",
     "icons": [
         {
-          "src": "imgs/tycoonworldicon.png",
+          "src": "imgs/idleworldicon.png",
           "sizes": "any",
           "type": "image/png"
         }
