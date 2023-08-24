@@ -27,6 +27,8 @@ function maploader() {
 const map = game.addScene({ name: "map", clock: { tick: tick, delay: 10 }, sceneloader: maploader })
 const sea = { x: 0, y: 0, w: window.innerWidth * 1.5, h: window.innerWidth * 3, img: "sea" } 
 
+maploader()
+
 if (window.matchMedia("(pointer: coarse)").matches) {
     // touchscreen
     game.log("Found touchscreen")
