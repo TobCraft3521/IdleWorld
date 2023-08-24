@@ -9,11 +9,11 @@ class TobGameEngine {
             scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock }
             enginestuff.scenes[scene.name] = scene
             if (enginestuff.activeSceneName === "") {
-                this.switchToScene(scene.name)
+                this.switchToScene(scene.name, true)
             }
             return scene
         } else {
-            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out [!] value false does not work)}")
+            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out} Note: Sceneloaders do only work after the scene has been added and you switch to that scene.")
             return
         }
     }
@@ -21,7 +21,8 @@ class TobGameEngine {
     switchToScene(name) {
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
         if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
-            if(enginestuff.scenes[name].sceneloader) {
+
+            if (enginestuff.scenes[name].sceneloader) {
                 enginestuff.scenes[name].sceneloader()
             }
             const clock = (sceneName) => {
