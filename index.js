@@ -1,4 +1,4 @@
-const game = new TobGameEngine("Tycoon World")
+const game = new TobGameEngine("Idle World")
 
 // Load textures
 game.loadTeaxture("sea", "/imgs/sea.png")
