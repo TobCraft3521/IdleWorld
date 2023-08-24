@@ -21,8 +21,8 @@ class TobGameEngine {
     switchToScene(name) {
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
         if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
-            if(scene.sceneloader) {
-                scene.sceneloader()
+            if(enginestuff.scenes[name].sceneloader) {
+                enginestuff.scenes[name].sceneloader()
             }
             const clock = (sceneName) => {
                 const startTime = Date.now()
