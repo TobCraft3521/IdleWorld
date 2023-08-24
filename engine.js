@@ -13,7 +13,7 @@ class TobGameEngine {
             }
             return scene
         } else {
-            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function)}")
+            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out [!] value false does not work)}")
             return
         }
     }
@@ -21,6 +21,9 @@ class TobGameEngine {
     switchToScene(name) {
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
         if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
+            if(scene.sceneloader) {
+                scene.sceneloader()
+            }
             const clock = (sceneName) => {
                 const startTime = Date.now()
                 enginestuff.scenes[name].clock.tick()
