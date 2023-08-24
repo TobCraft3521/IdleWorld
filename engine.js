@@ -13,7 +13,7 @@ class TobGameEngine {
             }
             return scene
         } else {
-            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\"}")
+            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function)}")
             return
         }
     }
