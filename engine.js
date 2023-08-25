@@ -6,7 +6,7 @@ class TobGameEngine {
 
     addScene(scene) {
         if (scene?.name) {
-            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map,clearonunload: scene.clearonunload }
+            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map, clearonunload: scene.clearonunload, sceneloader: scene.sceneloader }
             enginestuff.scenes[scene.name] = scene
             enginestuff.scenedata[scene.name] = { swipePositionX: 0, swipePositionY: 0, clearonunload: scene.clearonunload }
             if (enginestuff.activeSceneName === "") {
@@ -29,11 +29,13 @@ class TobGameEngine {
             }
         }
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
+      
+        if (enginestuff.scenes[name].sceneloader) {
+            enginestuff.scenes[name].sceneloader(enginestuff.scenes[name])
+        }
         if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
 
-            if (enginestuff.scenes[name].sceneloader) {
-                enginestuff.scenes[name].sceneloader()
-            }
+
             const clock = (sceneName) => {
                 const startTime = Date.now()
                 enginestuff.scenes[name].clock.tick()
