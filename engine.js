@@ -266,6 +266,8 @@ const enginestuff = {
         const canvasWidth = enginestuff.canvas.width
         const canvasHeight = enginestuff.canvas.height
 
+        //WORLD
+
         for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
 
             let widthOnScreen
@@ -278,10 +280,22 @@ const enginestuff = {
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
                 enginestuff.ctx.drawImage(enginestuff.textures[obj.img], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
-            }/* else if (obj.type === "text") {
+            } else if (obj.type === "text") {
+                const { text, font, color } = obj
+                enginestuff.ctx.textBaseline = "top"
+                if (font) {
+                    enginestuff.ctx.font = font
+                } else {
+                    enginestuff.ctx.font = "10px sans-serif"
+                }
+                if (color) {
+                    enginestuff.ctx.fillStyle = color
+                } else {
+                    enginestuff.ctx.fillStyle = "white"
+                }
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - (enginestuff.ctx.measureText(obj.text).width / 2)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom)))
-                enginestuff.ctx.fillText(obj.text, xOnScreen, yOnScreen)
+                enginestuff.ctx.fillText(text, xOnScreen, yOnScreen)
             } else if (obj.type === "button") {
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
@@ -293,8 +307,10 @@ const enginestuff = {
                     //hovered    
                     enginestuff.ctx.drawImage(enginestuff.textures[obj.hoveredImg], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
                 }
-            }*/
+            }
         }
+
+        //GUI
 
         for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
             let widthOnScreen
@@ -305,20 +321,32 @@ const enginestuff = {
             }
 
             if (obj.type === "text") {
-                const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - (enginestuff.ctx.measureText(obj.text).width / 2)))
-                const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom)))
-                enginestuff.ctx.fillText(obj.text, xOnScreen, yOnScreen)
+                enginestuff.ctx.textBaseline = "top"
+                const { x, y, text, font, color } = obj
+                if (font) {
+                    enginestuff.ctx.font = font
+                } else {
+                    enginestuff.ctx.font = "10px sans-serif"
+                }
+                if (color) {
+                    enginestuff.ctx.fillStyle = color
+                } else {
+                    enginestuff.ctx.fillStyle = "white"
+                }
+                enginestuff.ctx.fillText(text, x, y)
             } else if (obj.type === "button") {
-                const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
-                const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
+                const { x, y, w, h, img, hoveredImg } = obj
                 //check hovered
                 if (!enginestuff.getHoveredObjects().includes(obj)) {
                     //not hovered
-                    enginestuff.ctx.drawImage(enginestuff.textures[obj.img], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
+                    enginestuff.ctx.drawImage(enginestuff.textures[img], x, y, w, h)
                 } else {
                     //hovered    
-                    enginestuff.ctx.drawImage(enginestuff.textures[obj.hoveredImg], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
+                    enginestuff.ctx.drawImage(enginestuff.textures[hoveredImg], x, y, w, h)
                 }
+            } else if (obj.type === "image") {
+                const { x, y, w, h, img } = obj
+                enginestuff.ctx.drawImage(enginestuff.textures[img], x, y, w, h)
             }
         }
 

@@ -4,7 +4,7 @@ const game = new TobGameEngine("Idle World")
 game.loadTeaxture("sea", "/imgs/sea.png")
 //add scenes
 const map = game.addScene({ name: "map", sceneloader: loadMap, map: "sea", clearonunload: true })
-const bank = game.addScene({ name: "bank", sceneloader: loadBank, /*map: ""*/ })
+const bank = game.addScene({ name: "bank", sceneloader: loadBank,clearonunload: true  /*map: ""*/ })
 
 game.create()
 
