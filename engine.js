@@ -6,11 +6,11 @@ class TobGameEngine {
 
     addScene(scene) {
         if (scene?.name) {
-            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map }
+            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map,clearonunload: scene.clearonunload }
             enginestuff.scenes[scene.name] = scene
-            enginestuff.scenedata[scene.name] = {swipePositionX:0,swipePositionY:0}
+            enginestuff.scenedata[scene.name] = { swipePositionX: 0, swipePositionY: 0, clearonunload: scene.clearonunload }
             if (enginestuff.activeSceneName === "") {
-                this.switchToScene(scene.name, true)
+                this.switchToScene(scene.name)
             }
             return scene
         } else {
@@ -20,6 +20,14 @@ class TobGameEngine {
     }
 
     switchToScene(name) {
+        if (enginestuff.scenes[enginestuff.activeSceneName]) {
+            if (enginestuff.scenedata[enginestuff.activeSceneName]) {
+                if (enginestuff.scenedata[enginestuff.activeSceneName].clearonunload) {
+                    this.#enginelog("Clearing " + enginestuff.activeSceneName)
+                    enginestuff.scenes[enginestuff.activeSceneName].objs = {}
+                }
+            }
+        }
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
         if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
 
@@ -220,9 +228,9 @@ const enginestuff = {
     layers: [],
     renderGame() {
 
-        if(enginestuff.scenes[enginestuff.activeSceneName].map) {
-           enginestuff.scenes[enginestuff.activeSceneName].cam.x = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX
-           enginestuff.scenes[enginestuff.activeSceneName].cam.y = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY
+        if (enginestuff.scenes[enginestuff.activeSceneName].map) {
+            enginestuff.scenes[enginestuff.activeSceneName].cam.x = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX
+            enginestuff.scenes[enginestuff.activeSceneName].cam.y = -enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY
         }
 
         //quality
