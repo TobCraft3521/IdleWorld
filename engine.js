@@ -6,36 +6,43 @@ class TobGameEngine {
 
     addScene(scene) {
         if (scene?.name) {
-            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, clock: scene.clock, map: scene.map, clearonunload: scene.clearonunload, sceneloader: scene.sceneloader }
+            enginestuff.scenedata[scene.name] = { swipePositionX: 0, swipePositionY: 0, clearonunload: scene.clearonunload, clearguionunload: scene.clearguionunload, sceneloader: scene.sceneloader, clock: scene.clock }
+            scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, gui: {}, map: scene.map, clearguionunload: scene.clearguionunload }
             enginestuff.scenes[scene.name] = scene
-            enginestuff.scenedata[scene.name] = { swipePositionX: 0, swipePositionY: 0, clearonunload: scene.clearonunload }
+
             if (enginestuff.activeSceneName === "") {
                 this.switchToScene(scene.name)
             }
             return scene
         } else {
-            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(map:\"map-name\"),(clearonunload:true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out} Note: Sceneloaders do only work after the scene has been added and you switch to that scene.")
+            this.#logError("Please make sure to follow this structure in the overgiven object: { name: \"your-scene-name\", (tick: your-clock-function),(sceneloader: your-sceneloader-function),(map:\"map-name\"),(clearonunload:true & clearguionunload: true #if you want to automatically delete all objects when switching to another scene - if not, just leave it out} Note: Sceneloaders do only work after the scene has been added and you switch to that scene.")
             return
         }
     }
 
     switchToScene(name) {
+        if (enginestuff.activeSceneName === name) {
+            this.#logError("You cant switch to the same scene (" + enginestuff.activeSceneName + " => " + name + ")")
+            return
+        }
         if (enginestuff.scenes[enginestuff.activeSceneName]) {
             if (enginestuff.scenedata[enginestuff.activeSceneName]) {
                 if (enginestuff.scenedata[enginestuff.activeSceneName].clearonunload) {
                     this.#enginelog("Clearing " + enginestuff.activeSceneName)
                     enginestuff.scenes[enginestuff.activeSceneName].objs = {}
                 }
+                if (enginestuff.scenedata[enginestuff.activeSceneName].clearguionunload) {
+                    this.#enginelog("Clearing gui for " + enginestuff.activeSceneName)
+                    enginestuff.scenes[enginestuff.activeSceneName].gui = {}
+                }
             }
         }
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
-      
-        if (enginestuff.scenes[name].sceneloader) {
-            enginestuff.scenes[name].sceneloader(enginestuff.scenes[name])
+
+        if (enginestuff.scenedata[name].sceneloader) {
+            enginestuff.scenedata[name].sceneloader(enginestuff.scenes[name])
         }
-        if (enginestuff.scenes[name] && enginestuff.scenes[name].clock) {
-
-
+        if (enginestuff.scenes[name] && enginestuff.scenedata[name].clock) {
             const clock = (sceneName) => {
                 const startTime = Date.now()
                 enginestuff.scenes[name].clock.tick()
@@ -271,7 +278,33 @@ const enginestuff = {
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
                 enginestuff.ctx.drawImage(enginestuff.textures[obj.img], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
-            } else if (obj.type === "text") {
+            }/* else if (obj.type === "text") {
+                const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - (enginestuff.ctx.measureText(obj.text).width / 2)))
+                const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom)))
+                enginestuff.ctx.fillText(obj.text, xOnScreen, yOnScreen)
+            } else if (obj.type === "button") {
+                const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
+                const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
+                //check hovered
+                if (!enginestuff.getHoveredObjects().includes(obj)) {
+                    //not hovered
+                    enginestuff.ctx.drawImage(enginestuff.textures[obj.img], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
+                } else {
+                    //hovered    
+                    enginestuff.ctx.drawImage(enginestuff.textures[obj.hoveredImg], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
+                }
+            }*/
+        }
+
+        for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
+            let widthOnScreen
+            let heightOnScreen
+            if (obj.w && obj.h) {
+                widthOnScreen = Math.round(obj.w * cam.zoom)
+                heightOnScreen = Math.round(obj.h * cam.zoom)
+            }
+
+            if (obj.type === "text") {
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - (enginestuff.ctx.measureText(obj.text).width / 2)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom)))
                 enginestuff.ctx.fillText(obj.text, xOnScreen, yOnScreen)
@@ -288,6 +321,7 @@ const enginestuff = {
                 }
             }
         }
+
         enginestuff.layers.forEach(drawFunction => {
             drawFunction(enginestuff.ctx)
         })
