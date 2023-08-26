@@ -2,6 +2,9 @@ const game = new TobGameEngine("Idle World")
 
 // Load textures
 game.loadTeaxture("sea", "/imgs/sea.png")
+game.loadTeaxture("topbar", "/imgs/topbar.png")
+game.loadTeaxture("title","/imgs/iwtxt.png")
+
 //add scenes
 const map = game.addScene({ name: "map", sceneloader: loadMap, map: "sea", clearonunload: true })
 const bank = game.addScene({ name: "bank", sceneloader: loadBank,clearonunload: true  /*map: ""*/ })
