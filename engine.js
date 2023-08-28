@@ -40,7 +40,9 @@ class TobGameEngine {
         enginestuff.scenes[name] ? enginestuff.activeSceneName = name : this.#logError("There is no scene with the name: " + name)
 
         if (enginestuff.scenedata[name].sceneloader) {
+            this.#enginelog("Loading " + name)
             enginestuff.scenedata[name].sceneloader(enginestuff.scenes[name])
+            this.#enginelog("Done loading  " + name)
         }
         if (enginestuff.scenes[name] && enginestuff.scenedata[name].clock) {
             const clock = (sceneName) => {
@@ -151,6 +153,8 @@ class TobGameEngine {
             }
 
             window.ontouchmove = (e) => {
+                enginestuff.mouseX = e.touches[0].clientX
+                enginestuff.mouseY = e.touches[0].clientY
                 if (enginestuff.scenes[enginestuff.activeSceneName].map) {
                     if (enginestuff.scenedata[enginestuff.activeSceneName].isSwiping) {
                         const deltaX = e.touches[0].clientX - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX
@@ -165,6 +169,8 @@ class TobGameEngine {
         } else {
             this.#enginelog("Using mouse as primary input for clicking")
             window.onmousemove = (e) => {
+                enginestuff.mouseX = e.clientX
+                enginestuff.mouseY = e.clientY
                 if (enginestuff.scenes[enginestuff.activeSceneName].map) {
                     if (enginestuff.scenedata[enginestuff.activeSceneName].isSwiping) {
                         const deltaX = e.clientX - enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX
@@ -300,7 +306,7 @@ const enginestuff = {
                 const xOnScreen = Math.round(((canvasWidth / 2) + ((obj.x - cam.x) * cam.zoom) - ((obj.w / 2) * cam.zoom)))
                 const yOnScreen = Math.round(((canvasHeight / 2) + ((obj.y - cam.y) * cam.zoom) - ((obj.h / 2) * cam.zoom)))
                 //check hovered
-                if (!enginestuff.getHoveredObjects().includes(obj)) {
+                if (!enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
                     //not hovered
                     enginestuff.ctx.drawImage(enginestuff.textures[obj.img], xOnScreen, yOnScreen, widthOnScreen, heightOnScreen)
                 } else {
@@ -361,16 +367,18 @@ const enginestuff = {
         const objs = []
         const mouseDisX = (Math.round((enginestuff.mouseX - (enginestuff.canvas.width / 2)) / scene.cam.zoom))
         const mouseDisY = (Math.round((enginestuff.mouseY - (enginestuff.canvas.height / 2)) / scene.cam.zoom))
-
+        console.log(mouseDisX, mouseDisY,enginestuff.mouseX,enginestuff.mouseY)
         for (const [key, obj] of Object.entries(scene.objs)) {
+            console.log(obj)
             const objDisX = obj.x - scene.cam.x
             const objDisY = obj.y - scene.cam.y
-
+            console.log(objDisX, objDisY)
             const mouseToObjDisX = mouseDisX - objDisX
             const mouseToObjDisY = mouseDisY - objDisY
-
+            console.log(mouseDisX, mouseDisY)
             if (((-(obj.w / 2)) < mouseToObjDisX) && ((obj.w / 2) > mouseToObjDisX)) {
                 if (((-(obj.h / 2)) < mouseToObjDisY) && ((obj.h / 2) > mouseToObjDisY)) {
+                    console.log(obj)
                     objs.push(obj)
                 }
             }

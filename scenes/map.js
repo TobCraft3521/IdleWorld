@@ -1,5 +1,4 @@
 function loadMap(map) {
-    game.log("Loading map")
     //objects
     map.objs.sea = { x: 0, y: 0, w: window.innerWidth * 1.5, h: window.innerWidth * 3, img: "sea" }
 
@@ -11,7 +10,5 @@ function loadMap(map) {
     map.gui.title = { x: (window.innerWidth / 2) - (window.innerHeight / 8), y: window.innerHeight / 200, w: window.innerHeight / 4, h: window.innerHeight / 16.8, img: "title", type: "image" }
 
     //isles
-    map.objs.hqisle = { x: 0, y: 0, w: window.innerWidth / 2, h: window.innerWidth / 2, img: "hqisle" }
-
-    game.log("Done loading map")
+    map.objs.hqisle = { x: 0, y: 0, w: window.innerWidth / 2, h: window.innerWidth / 2, img: "hqisle",hoveredImg:"hqisle", type: "button" }
 }
