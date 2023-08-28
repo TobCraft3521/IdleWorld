@@ -367,18 +367,13 @@ const enginestuff = {
         const objs = []
         const mouseDisX = (Math.round((enginestuff.mouseX - (enginestuff.canvas.width / 2)) / scene.cam.zoom))
         const mouseDisY = (Math.round((enginestuff.mouseY - (enginestuff.canvas.height / 2)) / scene.cam.zoom))
-        console.log(mouseDisX, mouseDisY,enginestuff.mouseX,enginestuff.mouseY)
         for (const [key, obj] of Object.entries(scene.objs)) {
-            console.log(obj)
             const objDisX = obj.x - scene.cam.x
             const objDisY = obj.y - scene.cam.y
-            console.log(objDisX, objDisY)
             const mouseToObjDisX = mouseDisX - objDisX
             const mouseToObjDisY = mouseDisY - objDisY
-            console.log(mouseDisX, mouseDisY)
             if (((-(obj.w / 2)) < mouseToObjDisX) && ((obj.w / 2) > mouseToObjDisX)) {
                 if (((-(obj.h / 2)) < mouseToObjDisY) && ((obj.h / 2) > mouseToObjDisY)) {
-                    console.log(obj)
                     objs.push(obj)
                 }
             }
