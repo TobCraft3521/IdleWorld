@@ -110,6 +110,11 @@ class TobGameEngine {
 
     #setUp() {
 
+        window.onresize = (e) => {
+            enginestuff.canvas.width = window.innerWidth
+            enginestuff.canvas.height = window.innerHeight
+        }
+
         //set gameStartTimeStamp
         enginestuff.gameStartTimeStamp = Date.now()
 
@@ -135,6 +140,7 @@ class TobGameEngine {
         if (window.matchMedia("(pointer: coarse)").matches) {
             this.#enginelog("Using touchscreen as primary input for clicking")
             window.ontouchstart = (e) => {
+                enginestuff.touchstart = { x: e.touches[0].clientX, y: e.touches[0].clientY }
                 if (enginestuff.scenes[enginestuff.activeSceneName].map) {
                     enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = true
                     enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX = e.touches[0].clientX
@@ -144,7 +150,22 @@ class TobGameEngine {
                 }
             }
 
-            window.ontouchend = () => {
+            window.ontouchend = (e) => {
+                //no movement
+                if (enginestuff.touchstart.x == e.changedTouches[0].clientX && enginestuff.touchstart.y == e.changedTouches[0].clientY) {
+                    for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
+                        if (enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
+                            enginestuff.mouseX = e.changedTouches[0].clientX
+                            enginestuff.mouseY = e.changedTouches[0].clientY
+                            obj.onclick ? obj.onclick() : undefined
+                        }
+                    }
+                    for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
+                        if (obj.x < enginestuff.touchstart.x && obj.x + obj.w > enginestuff.touchstart.x && obj.y < enginestuff.touchstart.y && obj.y + obj.h > enginestuff.touchstart.y ) {
+                            obj.onclick ? obj.onclick() : undefined
+                        }
+                    }
+                }
                 if (enginestuff.scenes[enginestuff.activeSceneName].map) {
                     enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = false
                     enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Update the previous position (X)
@@ -165,7 +186,6 @@ class TobGameEngine {
                     }
                 }
             }
-
         } else {
             this.#enginelog("Using mouse as primary input for clicking")
             window.onmousemove = (e) => {
@@ -183,12 +203,6 @@ class TobGameEngine {
             }
 
             window.onmousedown = (e) => {
-                for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
-                    if (enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
-                        obj.onclick ? obj.onclick() : undefined
-                    }
-                }
-
                 if (enginestuff.scenes[enginestuff.activeSceneName].map) {
                     enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = true
                     enginestuff.scenedata[enginestuff.activeSceneName].startSwipeX = e.clientX
@@ -203,6 +217,18 @@ class TobGameEngine {
                     enginestuff.scenedata[enginestuff.activeSceneName].isSwiping = false
                     enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionX = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionX // Update the previous position (X)
                     enginestuff.scenedata[enginestuff.activeSceneName].prevSwipePositionY = enginestuff.scenedata[enginestuff.activeSceneName].swipePositionY // Update the previous position (Y)
+                }
+            }
+            window.onclick = (e) => {
+                for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].objs)) {
+                    if (enginestuff.getHoveredObjects(enginestuff.scenes[enginestuff.activeSceneName]).includes(obj)) {
+                        obj.onclick ? obj.onclick() : undefined
+                    }
+                }
+                for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
+                    if (obj.x < enginestuff.mouseX && obj.x + obj.w > enginestuff.mouseX && obj.y < enginestuff.mouseY && obj.y + obj.h > enginestuff.mouseY ) {
+                        obj.onclick ? obj.onclick() : undefined
+                    }
                 }
             }
         }

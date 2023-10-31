@@ -6,6 +6,7 @@ game.loadTeaxture("topbar", "/imgs/topbar.png")
 game.loadTeaxture("title", "/imgs/iwtxt.png")
 game.loadTeaxture("hqisle", "/imgs/headquaterisle.png")
 game.loadTeaxture("background", "/imgs/background.png")
+game.loadTeaxture("close-icon","/imgs/close.png")
 
 //add scenes
 const map = game.addScene({ name: "map", sceneloader: loadMap, map: "sea", clearonunload: true, clearguionunload: true })
