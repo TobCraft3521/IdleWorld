@@ -6,6 +6,8 @@ class TobGameEngine {
 
     addScene(scene) {
         if (scene?.name) {
+            if(scene.clearonunload == undefined) scene.clearonunload = true
+            if(scene.clearguionunload == undefined) scene.clearguionunload = true
             enginestuff.scenedata[scene.name] = { swipePositionX: 0, swipePositionY: 0, clearonunload: scene.clearonunload, clearguionunload: scene.clearguionunload, sceneloader: scene.sceneloader, clock: scene.clock }
             scene = { name: scene.name, objs: {}, cam: { x: 0, y: 0, zoom: 1 }, gui: {}, map: scene.map, clearguionunload: scene.clearguionunload }
             enginestuff.scenes[scene.name] = scene
@@ -161,7 +163,7 @@ class TobGameEngine {
                         }
                     }
                     for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
-                        if (obj.x < enginestuff.touchstart.x && obj.x + obj.w > enginestuff.touchstart.x && obj.y < enginestuff.touchstart.y && obj.y + obj.h > enginestuff.touchstart.y ) {
+                        if (obj.x < enginestuff.touchstart.x && obj.x + obj.w > enginestuff.touchstart.x && obj.y < enginestuff.touchstart.y && obj.y + obj.h > enginestuff.touchstart.y) {
                             obj.onclick ? obj.onclick() : undefined
                         }
                     }
@@ -226,7 +228,7 @@ class TobGameEngine {
                     }
                 }
                 for (const [key, obj] of Object.entries(enginestuff.scenes[enginestuff.activeSceneName].gui)) {
-                    if (obj.x < enginestuff.mouseX && obj.x + obj.w > enginestuff.mouseX && obj.y < enginestuff.mouseY && obj.y + obj.h > enginestuff.mouseY ) {
+                    if (obj.x < enginestuff.mouseX && obj.x + obj.w > enginestuff.mouseX && obj.y < enginestuff.mouseY && obj.y + obj.h > enginestuff.mouseY) {
                         obj.onclick ? obj.onclick() : undefined
                     }
                 }
